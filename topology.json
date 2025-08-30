@@ -1,0 +1,55 @@
+{
+    "switches": [
+        "s1",
+        "s2",
+        "s3",
+        "s4"
+    ],
+    "links": [
+        {
+            "src": "s1",
+            "dst": "s2",
+            "type": "SF",
+            "bandwidth": 10000,
+            "latency": null,
+            "jitter": null,
+            "packet_loss": null
+        },
+        {
+            "src": "s2",
+            "dst": "s3",
+            "type": "SF",
+            "bandwidth": null,
+            "latency": null,
+            "jitter": null,
+            "packet_loss": null
+        },
+        {
+            "src": "s1",
+            "dst": "s4",
+            "type": "SF",
+            "bandwidth": null,
+            "latency": null,
+            "jitter": null,
+            "packet_loss": null
+        },
+        {
+            "src": "s1",
+            "dst": "p0",
+            "type": "physical",
+            "bandwidth": null,
+            "latency": null,
+            "jitter": null,
+            "packet_loss": null
+        },
+        {
+            "src": "s3",
+            "dst": "p1",
+            "type": "physical",
+            "bandwidth": null,
+            "latency": null,
+            "jitter": null,
+            "packet_loss": null
+        }
+    ]
+}

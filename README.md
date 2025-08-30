@@ -1,14 +1,12 @@
-# SmartNet: SmartNIC-based network emulation
+# Project: P7-SmartNIC
 
 ## Overview
-SmartNet is a project focused on leveraging SmartNIC technology to enhance network performance and offload processing tasks. This repository contains the source code, documentation, and resources for the project.
+P7-SmartNIC is a project focused on leveraging SmartNIC technology to enhance network performance and offload processing tasks. This repository contains the source code, documentation, and resources for the project.
 
 ## Features
-- High-performance network emulation
+- High-performance network processing
 - Offloading computational tasks to SmartNICs
-- Switch emulation
-- Host emulation
-- Link metrics (Bandwidth, latency, jitter, packet loss).
+- Scalable and modular design
 
 ## Getting Started
 ### Prerequisites
@@ -23,11 +21,11 @@ pip install -r requirements.txt
 ### Installation
 1. Clone the repository:
     ```bash
-    git clone https://github.com/intrig-unicamp/SmartNet/git
+    git clone https://github.com/lopesvictor1/p7-smartnic.git
     ```
 2. Navigate to the project directory:
     ```bash
-    cd SmartNet/
+    cd p7-smartnic
     ```
 3. Restart Environment
    To restart the environment, run the following script provided in the repository:
