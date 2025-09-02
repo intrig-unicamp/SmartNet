@@ -44,10 +44,37 @@ pip install -r requirements.txt
 To run the code, use the following command:
 
 ```bash
-python3 create_topology.py --sw X
+python3 run_topo.py
 ```
 
-Replace `X` with the number of switches in the linear topology you want to create.
+You can change this file to represent the desired topology based on the following rules:
+
+#### Add Switches
+```bash
+topo.add_switch("switch_name")
+```
+#### Add Links
+```bash
+topo.add_link("switch1", "switch2", bandwidth=w, latency=x, jitter=y, packet_loss=z)
+```
+- bandwidth: Maximum link bandwidth in Mbps (Integer)
+- latency: Base latency in milliseconds (Integer)
+- jitter: Maximum variation in latency in milliseconds (Integer)
+- packet_loss: Packet loss percentage (0–100) (Float)
+
+#### External Connections
+```bash
+topo.add_link("switch_name", "physical_port", link_type="physical")
+```
+#### View Topology
+```bash
+topo.show_topology()
+```
+
+#### Run SmartNet
+```bash
+topo.start()
+```
 
 ## Contributing
 Contributions are welcome! Please follow these steps:
