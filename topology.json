@@ -10,9 +10,9 @@
             "src": "s1",
             "dst": "s2",
             "type": "SF",
-            "bandwidth": 10000,
-            "latency": null,
-            "jitter": null,
+            "bandwidth": 0,
+            "latency": 10,
+            "jitter": 5,
             "packet_loss": null
         },
         {
@@ -25,7 +25,7 @@
             "packet_loss": null
         },
         {
-            "src": "s1",
+            "src": "s3",
             "dst": "s4",
             "type": "SF",
             "bandwidth": null,
@@ -43,7 +43,7 @@
             "packet_loss": null
         },
         {
-            "src": "s3",
+            "src": "s4",
             "dst": "p1",
             "type": "physical",
             "bandwidth": null,

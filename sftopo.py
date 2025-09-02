@@ -1,7 +1,7 @@
 import os
 import json
-import networkx as nx
-import matplotlib.pyplot as plt
+#import networkx as nx
+#import matplotlib.pyplot as plt
 
 class SFTopo:
     def __init__(self):
@@ -78,7 +78,7 @@ class SFTopo:
             G.add_edge(link["src"], link["dst"])
             label = []
             if link["bandwidth"] is not None:
-                label.append(f"BW: {link['bandwidth']}kbps")
+                label.append(f"BW: {link['bandwidth']}mbps")
             if link["latency"] is not None:
                 label.append(f"Latency: {link['latency']}ms")
             if link["jitter"] is not None:

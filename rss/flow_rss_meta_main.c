@@ -14,21 +14,15 @@
 #include <doca_argp.h>
 #include <doca_flow.h>
 #include <doca_log.h>
+#include <stdlib.h> 
 
 #include <dpdk_utils.h>
 
 
-struct packet_control_config {
-	int latency;
-	int jitter;
-	int bandwidth;     // in MB/s
-	int packet_loss;
-};
-
 DOCA_LOG_REGISTER(FLOW_RSS_META::MAIN);
 
 /* Sample's Logic */
-doca_error_t flow_rss_meta(int nb_queues, struct packet_control_config *config);
+doca_error_t flow_rss_meta(int nb_queues, const char *src, const char *dst, uint64_t bandwidth, int latency, int jitter, float packet_loss);
 
 /*
  * Sample main function
@@ -83,20 +77,28 @@ int main(int argc, char **argv)
 		goto dpdk_cleanup;
 	}
 
+	if(argc < 3){
+		DOCA_LOG_ERR("Usage: %s <src> <dst> [other_dpdk_args...]", argv[0]);
+    	goto sample_exit;
+	}
 
-	struct packet_control_config config;
+	const char *src = argv[1];
+    const char *dst = argv[2];
+	uint64_t bandwidth = strtoull(argv[3], NULL, 10);  // Convert string to uint64_t
+	int latency = atoi(argv[4]);                       // Convert string to int
+	int jitter = atoi(argv[5]);                        // Convert string to int
+	float packet_loss = atof(argv[6]);                 // Convert string to float
 
-	config.latency = atoi(argv[1]);
-	config.jitter = atoi(argv[2]);
-	config.bandwidth = atoi(argv[3]);     // In MB/s
-	config.packet_loss = atoi(argv[4]);
+	printf("Source: %s\n", src);
+    printf("Destination: %s\n", dst);
+	printf("Configuration: BW: %lu, Lat: %i, Jit: %i, Loss: %f\n", bandwidth, latency, jitter, packet_loss);
 
 	// Shift argv and argc to skip the first 4 custom args
-	argc -= 4;
-	argv += 4;
+	argc -= 6;
+	argv += 6;
 
 	// Pass the struct to your sample app
-	result = flow_rss_meta(dpdk_config.port_config.nb_queues, &config);
+	result = flow_rss_meta(dpdk_config.port_config.nb_queues, src, dst, bandwidth, latency, jitter, packet_loss);
 
 	if (result != DOCA_SUCCESS) {
 		DOCA_LOG_ERR("flow_rss_meta() encountered an error: %s", doca_error_get_descr(result));

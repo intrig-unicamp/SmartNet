@@ -15,6 +15,40 @@ build_hairpin_code() {
     echo "Hairpin code built successfully."
 }
 
+compile_hairpin_code() {
+    CURRENT_PATH=$(pwd)
+    cd $CURRENT_PATH/hairpin/build
+    ninja
+    cd ../..
+
+    echo "Hairpin code compiled."
+}
+
+build_rss_code() {
+    echo "Building hairpin code..."
+    
+    # Build hairpin code
+    export PKG_CONFIG_PATH=:/opt/mellanox/doca/lib/aarch64-linux-gnu/pkgconfig:/opt/mellanox/dpdk/lib/aarch64-linux-gnu/pkgconfig:/opt/mellanox
+    CURRENT_PATH=$(pwd)
+    cd $CURRENT_PATH/rss
+    meson build
+    cd build
+    ninja
+    cd ../..
+    
+    echo "Hairpin code built successfully."
+}
+
+compile_rss_code() {
+    CURRENT_PATH=$(pwd)
+    cd $CURRENT_PATH/rss/build
+    ninja
+    cd ../..
+
+    echo "RSS code compiled."
+}
+
+
 # Function to clean up OVS bridges
 cleanup_bridges() {
     echo "Cleaning up all OVS bridges..."
@@ -48,7 +82,6 @@ setup_hugepages() {
     # Unmount if already mounted
     umount /dev/hugepages 2>/dev/null || true
     
-
     # Create mount point and mount
     mkdir -p /mnt/huge
     mount -t hugetlbfs nodev /mnt/huge
@@ -61,7 +94,8 @@ setup_hugepages() {
 
 # Function to enable hardware offload
 enable_hw_offload() {
-    echo "Enabling hardware offload..."    
+    echo "Enabling hardware offload..."
+    
     ovs-vsctl set Open_vSwitch . Other_config:hw-offload=true
     systemctl restart openvswitch-switch
     
@@ -73,6 +107,7 @@ echo "Starting environment setup..."
 
 #kill any prev app
 killall doca_flow_hairpin_vnf
+killall doca_flow_rss_meta
 
 # Step 1: Clean existing environment
 cleanup_bridges
@@ -91,6 +126,13 @@ if [ ! -f "hairpin/build/doca_flow_hairpin_vnf" ]; then
     build_hairpin_code
 else
     echo "Hairpin code already built. Skipping build step."
+fi
+
+# Step 5: Check if rss code needs to be built
+if [ ! -f "rss/build/doca_flow_rss_meta" ]; then
+    build_rss_code
+else
+    echo "RSS code already built. Skipping built step."
 fi
 
 echo "Environment setup complete. Ready for topology creation."

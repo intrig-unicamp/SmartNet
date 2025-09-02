@@ -47,10 +47,10 @@ def run_hairpin(driver1, driver2, hp_num):
     print(f"Starting hairpin between drivers {driver1} and {driver2}: {cmd}")
     subprocess.run(cmd, shell=True, check=True)
 
-def run_rss(driver1, driver2, hp_num, latency, jitter, bandwidth, packet_loss):
-    unique_prefix = f"hp{hp_num}_{int(time.time())}"
-    cmd = f"./rss/build/doca_flow_rss_meta {latency} {jitter} {bandwidth} {packet_loss} -a auxiliary:mlx5_core.sf.{driver1},dv_flow_en=2 -a auxiliary:mlx5_core.sf.{driver2},dv_flow_en=2 --file-prefix={unique_prefix} &"
-    print(f"Starting hairpin between drivers {driver1} and {driver2}: {cmd}")
+def run_rss(driver1, driver2, hp_num, src, dst, bandwidth, latency, jitter, packet_loss):
+    unique_prefix = f"rss{hp_num}_{int(time.time())}"
+    cmd = f"./rss/build/doca_flow_rss_meta {src} {dst} {bandwidth} {latency} {jitter} {packet_loss} -a auxiliary:mlx5_core.sf.{driver1},dv_flow_en=2 -a auxiliary:mlx5_core.sf.{driver2},dv_flow_en=2 --file-prefix={unique_prefix} &"
+    print(f"Starting rss between drivers {driver1} and {driver2}: {cmd}")
     subprocess.run(cmd, shell=True, check=True)
 
 
@@ -135,6 +135,9 @@ def main():
         jitter = link.get("jitter")
         packet_loss = link.get("packet_loss")
         
+        
+        print(link)
+        
         # Determine which PF to use based on the link position
         pf_num = 0 if i < half_point else 1
         sf_index = pci_00_sf_index if pf_num == 0 else pci_01_sf_index
@@ -172,15 +175,26 @@ def main():
             pci_01_sf_index += 1
         
         # Record the link pair
-        link_pairs.append((sf_src_name, sf_dst_name, latency, jitter, packet_loss))
+        link_pairs.append((sf_src_name, sf_dst_name, src_switch, dst_switch, bandwidth, latency, jitter, packet_loss))
+
     
     # Create hairpins between SF pairs
-    for i, (sf1, sf2, latency, jitter, packet_loss) in enumerate(link_pairs):
+    for i, (sf1, sf2, src_switch, dst_switch, bandwidth, latency, jitter, packet_loss) in enumerate(link_pairs):
         if latency is None and jitter is None and packet_loss is None and bandwidth is None:
             run_hairpin(driver1=sf_drivers[sf1], driver2=sf_drivers[sf2], hp_num=i)
             time.sleep(1)
         else:
-            run_rss(driver1=sf_drivers[sf1], driver2=sf_drivers[sf2], hp_num=i, latency=latency, jitter=jitter, bandwidth= bandwidth, packet_loss=packet_loss)
+            if bandwidth is None:
+                bandwidth = 0
+            if latency is None:
+                latency = 0
+            if jitter is None:
+                jitter = 0
+            if packet_loss is None:
+                packet_loss = 0
+                
+            run_rss(driver1=sf_drivers[sf1], driver2=sf_drivers[sf2], hp_num=i, src=src_switch, dst=dst_switch, bandwidth=bandwidth,
+                    latency=latency, jitter=jitter, packet_loss=packet_loss)
             time.sleep(1)
     
     # Get port numbers for all switches
@@ -190,19 +204,11 @@ def main():
     
     print(switch_port_numbers)
     
-    # Set bidirectional flows only for switches with 2 or more ports
     for switch in switches:
-        port_items = list(switch_port_numbers[switch].items())
-        
-        if len(port_items) >= 2:
-            first_key, first_value = port_items[0]
-            second_key, second_value = port_items[1]
-            print(first_key + " <--> " + second_key)
-            set_bidirectional_flow(switch, first_key, second_key)
-        else:
-            print(f"Switch {switch} has only {len(port_items)} port(s), skipping bidirectional flow setup")
-    
-    print("\nTopology setup complete!")
+       first_key, first_value = list(switch_port_numbers[switch].items())[0]
+       second_key, second_value = list(switch_port_numbers[switch].items())[1]
+       print(first_key + " <--> " + second_key)
+       set_bidirectional_flow(switch, first_key, second_key)
 
     
     print("\nTopology setup complete!")

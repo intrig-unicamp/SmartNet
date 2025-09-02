@@ -33,6 +33,8 @@ sample_dependencies += dependency('doca-flow')
 sample_dependencies += dependency('doca-argp')
 # Required DOCA Driver
 sample_dependencies += dependency('libdpdk')
+# Required for pthread usage
+sample_dependencies += dependency('threads')
 
 sample_srcs = [
 	# The sample itself
