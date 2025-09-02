@@ -1,2 +1,4 @@
 __pycache__/
 *.py_bkp
+rss/build/
+hairpin/build/

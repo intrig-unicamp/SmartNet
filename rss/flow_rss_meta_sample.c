@@ -292,16 +292,17 @@ static void process_packets(int ingress_port)
     for (int i = 0; i < nb_packets; i++) {
 		struct rte_mbuf *pkt = packets[i];
         uint16_t pkt_len = rte_pktmbuf_pkt_len(pkt);
+		
+		if (!process_bandwidth_limit(pkt_len)) {
+			rte_pktmbuf_free(pkt);
+			continue;
+		}
 
         if (should_drop_packet()) {
             rte_pktmbuf_free(pkt);
             continue;
         }
 
-        if (!process_bandwidth_limit(pkt_len)) {
-            rte_pktmbuf_free(pkt);
-            continue;
-        }
 
         // Enqueue with latency + jitter
         enqueue_with_delay(pkt);
@@ -310,45 +311,6 @@ static void process_packets(int ingress_port)
     // Try sending any packets whose time has expired
     flush_ready_packets(egress_port);
 }
-
-/*
-static void process_packets(int ingress_port)
-{
-    struct rte_mbuf *packets[PACKET_BURST];
-    struct rte_mbuf *to_forward[PACKET_BURST];
-    int queue_index = 0;
-    int nb_packets;
-    int forward_count = 0;
-    uint16_t egress_port = (ingress_port == 0) ? 1 : 0;
-    
-    nb_packets = rte_eth_rx_burst(ingress_port, queue_index, packets, PACKET_BURST);
-    
-    for (int i = 0; i < nb_packets; i++) {
-        struct rte_mbuf *pkt = packets[i];
-        uint16_t pkt_len = rte_pktmbuf_pkt_len(pkt);
-        
-        // Packet loss simulation
-        if (should_drop_packet() == 1) {
-			rte_pktmbuf_free(pkt);
-			continue;
-        }
-        
-        // Option 1: Byte-based limiting (more accurate)
-        if (!process_bandwidth_limit(pkt_len)) {
-            rte_pktmbuf_free(pkt);
-            continue;
-        }
-        
-        
-        to_forward[forward_count++] = pkt;
-    }
-    
-    // Send all packets that passed the tests
-    if (forward_count > 0) {
-        rte_eth_tx_burst(egress_port, queue_index, to_forward, forward_count);
-    }
-}
-*/
 
 /*
  * Create DOCA Flow pipe with 5 tuple match, changeable set meta action, and forward RSS
