@@ -66,10 +66,17 @@ topo.add_link("switch1", "switch2", bandwidth=w, latency=x, jitter=y, packet_los
 ```bash
 topo.add_link("switch_name", "physical_port", link_type="physical")
 ```
-#### View Topology
+#### Show Topology
 ```bash
 topo.show_topology()
 ```
+This will show the topology in the CLI.
+
+#### View Topology
+```bash
+topo.visualize_topology()
+```
+This will show the topology as a new matplotlib.pyplot window.
 
 #### Run SmartNet
 ```bash
